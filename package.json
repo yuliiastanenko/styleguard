@@ -9,6 +9,7 @@
     "dev:worker": "npm run dev:worker -w @styleguard/api",
     "typecheck": "npm run typecheck -w @styleguard/api",
     "db:migrate": "npm run db:migrate -w @styleguard/api",
-    "r2:test": "npm run r2:test -w @styleguard/api"
+    "r2:test": "npm run r2:test -w @styleguard/api",
+    "gen:test": "npm run gen:test -w @styleguard/api --"
   }
 }
