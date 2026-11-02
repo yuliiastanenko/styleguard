@@ -1,5 +1,6 @@
 import { fal } from "@fal-ai/client";
 import { env } from "../env.js";
+import { ProviderError } from "../lib/errors.js";
 import { estimateCost } from "./cost.js";
 import type { ImageProvider, ModelConfig } from "./types.js";
 
@@ -42,7 +43,7 @@ export function createFalProvider(id: string, cfg: Extract<ModelConfig, { provid
       if (!image?.url) throw new Error(`fal returned no image (request ${result.requestId})`);
 
       const res = await fetch(image.url, { signal: opts.signal });
-      if (!res.ok) throw new Error(`failed to download fal image: ${res.status}`);
+      if (!res.ok) throw new ProviderError(`failed to download fal image: ${res.status}`, res.status);
       const imageBytes = new Uint8Array(await res.arrayBuffer());
 
       return {

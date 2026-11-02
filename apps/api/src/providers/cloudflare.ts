@@ -1,4 +1,5 @@
 import { env } from "../env.js";
+import { ProviderError } from "../lib/errors.js";
 import { estimateCost } from "./cost.js";
 import type { ImageProvider, ModelConfig } from "./types.js";
 
@@ -45,7 +46,7 @@ export function createCloudflareProvider(
 
       if (!res.ok) {
         const text = await res.text().catch(() => "");
-        throw new Error(`cloudflare ai ${res.status}: ${text.slice(0, 300)}`);
+        throw new ProviderError(`cloudflare ai ${res.status}: ${text.slice(0, 300)}`, res.status);
       }
 
       // some models answer with json + base64, others with raw image bytes

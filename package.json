@@ -11,6 +11,7 @@
     "db:migrate": "npm run db:migrate -w @styleguard/api",
     "r2:test": "npm run r2:test -w @styleguard/api",
     "gen:test": "npm run gen:test -w @styleguard/api --",
-    "db:seed": "npm run db:seed -w @styleguard/api"
+    "db:seed": "npm run db:seed -w @styleguard/api",
+    "db:studio": "npm run db:studio -w @styleguard/api"
   }
 }

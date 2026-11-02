@@ -6,6 +6,7 @@ import { env } from "./env.js";
 import { health } from "./routes/health.js";
 import { models } from "./routes/models.js";
 import { brands } from "./routes/brands.js";
+import { generations } from "./routes/generations.js";
 
 export const app = new Hono();
 
@@ -23,6 +24,7 @@ app.get("/", (c) => c.json({ name: "styleguard-api" }));
 app.route("/health", health);
 app.route("/models", models);
 app.route("/brands", brands);
+app.route("/generations", generations);
 
 app.notFound((c) => c.json({ error: "not_found" }, 404));
 

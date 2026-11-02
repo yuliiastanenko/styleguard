@@ -14,6 +14,8 @@ const EnvSchema = z.object({
   R2_BUCKET: z.string().min(1),
   R2_PUBLIC_URL: z.string().url().transform((u) => u.replace(/\/+$/, "")),
 
+  WORKER_CONCURRENCY: z.coerce.number().int().min(1).max(10).default(2),
+
   CF_AI_TOKEN: z.string().optional(),
   FAL_KEY: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
