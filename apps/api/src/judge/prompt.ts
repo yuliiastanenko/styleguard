@@ -1,7 +1,8 @@
 import type { BrandVersion } from "@prisma/client";
 
 // bump on any wording change, every stored score keeps the version it was made with
-export const JUDGE_PROMPT_VERSION = "j1";
+// j2: explicit score anchors, llama scored clean images around 7 under j1
+export const JUDGE_PROMPT_VERSION = "j2";
 
 export const SYSTEM_PROMPT = `You review images for brand consistency.
 You judge only the visual style: colors, light, mood, composition, materials.
@@ -15,10 +16,12 @@ ${brand.rules}
 Brand palette (hex): ${brand.palette.join(", ")}
 
 Score how well the image follows these rules.
-10 = fully on brand, nothing to fix
-7 = on brand with small deviations
-4 = clear drift, several rules broken
-1 = a completely different style
+9-10 = follows every rule, a designer would ship it as is
+7-8 = follows the rules with a small, easy to miss deviation
+4-6 = clearly breaks at least one rule
+0-3 = breaks several rules or looks like a different brand
+
+Only rules that are written above count. Do not take points off for the subject, image quality or anything the rules do not mention. If nothing breaks a rule, the score is 9 or 10.
 
 Also estimate paletteMatch from 0 to 1: how close the dominant colors of the image are to the brand palette.
 

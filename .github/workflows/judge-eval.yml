@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 concurrency:
@@ -20,9 +20,11 @@ concurrency:
 jobs:
   eval:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - uses: actions/setup-node@v4
         with:
@@ -43,12 +45,12 @@ jobs:
           R2_PUBLIC_URL=https://unused.r2.dev
           CF_AI_TOKEN=${{ secrets.CF_AI_TOKEN }}
           OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
-          JUDGE_MODEL=${{ vars.JUDGE_MODEL || 'cf-llama4-scout' }}
+          JUDGE_MODEL=${{ vars.JUDGE_MODEL || 'cf-gemma4' }}
           EOF
 
       # cached runs for an unchanged judge are reused, so only a changed prompt or model costs calls
       - name: run eval
-        run: npm run eval -- --repeats 3 --repeat-subset 6 --min-agreement ${{ vars.EVAL_MIN_AGREEMENT || '0' }}
+        run: npm run eval -- --judge ${{ vars.EVAL_JUDGES || 'cf-gemma4,cf-llama4-scout' }} --min-agreement ${{ vars.EVAL_MIN_AGREEMENT || '0' }}
 
       - name: report
         if: always() && hashFiles('eval/results/summary.md') != ''
@@ -61,10 +63,16 @@ jobs:
               || gh pr comment ${{ github.event.pull_request.number }} --body-file eval/results/summary.md
           fi
 
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: eval-results
-          path: |
-            eval/results
-            eval/runs
+      # results go back into the branch, so merging the pr also merges its eval evidence
+      - name: commit results
+        if: always() && github.event_name == 'pull_request'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add eval/runs eval/results
+          if git diff --cached --quiet; then
+            echo "no new eval results"
+          else
+            git commit -m "eval results for ${{ github.event.pull_request.head.sha }}"
+            git push
+          fi
