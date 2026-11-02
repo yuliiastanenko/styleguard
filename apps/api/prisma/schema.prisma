@@ -9,11 +9,12 @@ datasource db {
 }
 
 model Brand {
-  id        String         @id @default(cuid())
-  slug      String         @unique
-  name      String
-  createdAt DateTime       @default(now())
-  versions  BrandVersion[]
+  id          String         @id @default(cuid())
+  slug        String         @unique
+  name        String
+  createdAt   DateTime       @default(now())
+  versions    BrandVersion[]
+  driftStates DriftState[]
 }
 
 // immutable, editing a brand inserts a new row with version + 1
@@ -99,4 +100,24 @@ model Job {
   updatedAt    DateTime         @updatedAt
 
   @@index([status, runAfter])
+}
+
+enum DriftStatus {
+  ok
+  drifting
+}
+
+// one row per brand + model, remembers the last verdict so slack gets one message per change, not per image
+model DriftState {
+  id        String      @id @default(cuid())
+  brandId   String
+  brand     Brand       @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  model     String
+  status    DriftStatus @default(ok)
+  mean      Float?
+  samples   Int         @default(0)
+  changedAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@unique([brandId, model])
 }

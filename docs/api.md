@@ -99,3 +99,35 @@ Rules: `slug` is `[a-z0-9-]{2,40}`, `palette` is 1 to 12 hex colors like `#A1B2C
 `GET /generations/:id` for polling, until `status` is `done` or `failed`.
 
 `GET /generations?brand=&model=&status=&onBrand=true|false&limit=20&cursor=` → `{ items: Generation[], nextCursor: string | null }`, newest first. Pass `nextCursor` back as `cursor` for the next page.
+
+## Drift
+
+Every finished check updates a rolling mean of judge scores per brand + model (last `DRIFT_WINDOW` images, default 10). Only scores from the current judge and judge prompt version count, since judges use different scales. When the mean drops below the brand threshold a Slack message is sent once; when it climbs back above threshold + `DRIFT_RECOVERY_MARGIN` (default 0.5) a recovery message is sent.
+
+`GET /drift?brand=&model=&limit=50`
+
+```json
+{
+  "window": 10,
+  "minSamples": 5,
+  "judge": "cf-gemma4",
+  "judgePromptVersion": "j1",
+  "series": [
+    {
+      "brand": { "id": "...", "slug": "nordic", "name": "Nordic Co" },
+      "model": "cf-flux-schnell",
+      "modelLabel": "FLUX.1 schnell (Cloudflare)",
+      "threshold": 7.5,
+      "brandVersion": 2,
+      "status": "ok | drifting",
+      "statusSince": "...",
+      "currentMean": 8.4,
+      "points": [
+        { "id": "...", "createdAt": "...", "score": 9, "rollingMean": 8.6, "onBrand": true, "brandVersion": 2, "subject": "...", "imageUrl": "..." }
+      ]
+    }
+  ]
+}
+```
+
+Points are oldest first. `POST /drift/recompute` recalculates every brand + model pair, useful after changing a threshold.

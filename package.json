@@ -18,7 +18,8 @@
     "start": "npm run start:prod -w @styleguard/api",
     "eval:build": "npm run eval:build -w @styleguard/api --",
     "eval:label": "npm run eval:label -w @styleguard/api",
-    "eval": "npm run eval -w @styleguard/api --"
+    "eval": "npm run eval -w @styleguard/api --",
+    "drift:demo": "npm run drift:demo -w @styleguard/api --"
   },
   "engines": {
     "node": ">=22"

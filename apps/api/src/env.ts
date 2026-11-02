@@ -17,7 +17,13 @@ const EnvSchema = z.object({
   WORKER_CONCURRENCY: z.coerce.number().int().min(1).max(10).default(2),
   RUN_WORKER: z.enum(["true", "false"]).default("false").transform((v) => v === "true"),
 
-  JUDGE_MODEL: z.string().default("cf-llama4-scout"),
+  JUDGE_MODEL: z.string().default("cf-gemma4"),
+
+  SLACK_WEBHOOK_URL: z.string().url().optional().or(z.literal("").transform(() => undefined)),
+  PUBLIC_APP_URL: z.string().url().optional().or(z.literal("").transform(() => undefined)),
+  DRIFT_WINDOW: z.coerce.number().int().min(3).max(100).default(10),
+  DRIFT_MIN_SAMPLES: z.coerce.number().int().min(2).max(100).default(5),
+  DRIFT_RECOVERY_MARGIN: z.coerce.number().min(0).max(5).default(0.5),
 
   CF_AI_TOKEN: z.string().optional(),
   FAL_KEY: z.string().optional(),

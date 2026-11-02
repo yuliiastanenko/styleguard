@@ -21,7 +21,8 @@
     "start:prod": "prisma migrate deploy && node dist/index.js",
     "eval:build": "tsx --env-file=.env scripts/eval/build.ts",
     "eval:label": "tsx scripts/eval/label.ts",
-    "eval": "tsx --env-file=.env scripts/eval/run.ts"
+    "eval": "tsx --env-file=.env scripts/eval/run.ts",
+    "drift:demo": "tsx scripts/drift-demo.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1161.0",

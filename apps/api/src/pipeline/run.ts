@@ -5,10 +5,11 @@ import { env } from "../env.js";
 import { errorMessage, isRetryable } from "../lib/errors.js";
 import { checkImage, saveCheck, saveUnavailable } from "./check.js";
 import { setStage, type ClaimedJob } from "./queue.js";
+import { updateDrift } from "../drift/service.js";
 
 const GENERATE_TIMEOUT_MS = 120_000;
 const UPLOAD_TIMEOUT_MS = 30_000;
-const CHECK_TIMEOUT_MS = 60_000;
+const CHECK_TIMEOUT_MS = 120_000;
 
 function extFor(mime: string) {
   if (mime === "image/jpeg") return "jpg";
@@ -58,6 +59,11 @@ export async function runPipeline(job: ClaimedJob) {
   try {
     const result = await checkImage(gen.imageUrl!, gen.brandVersion, AbortSignal.timeout(CHECK_TIMEOUT_MS));
     await saveCheck(gen.id, gen.brandVersion.threshold, result);
+    if (result.status === "ok") {
+      await updateDrift(gen.brandVersion.brandId, gen.model).catch((e) =>
+        console.error(`[drift] update failed: ${errorMessage(e)}`),
+      );
+    }
   } catch (e) {
     // the image is fine, so a judge outage on the last attempt should not fail the whole generation
     if (isRetryable(e) && job.attempts < job.maxAttempts) throw e;
