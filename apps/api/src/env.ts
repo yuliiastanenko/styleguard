@@ -15,6 +15,9 @@ const EnvSchema = z.object({
   R2_PUBLIC_URL: z.string().url().transform((u) => u.replace(/\/+$/, "")),
 
   WORKER_CONCURRENCY: z.coerce.number().int().min(1).max(10).default(2),
+  RUN_WORKER: z.enum(["true", "false"]).default("false").transform((v) => v === "true"),
+
+  JUDGE_MODEL: z.string().default("cf-llama4-scout"),
 
   CF_AI_TOKEN: z.string().optional(),
   FAL_KEY: z.string().optional(),

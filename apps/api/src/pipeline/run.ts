@@ -1,7 +1,9 @@
 import { prisma } from "../db.js";
 import { getImageProvider, isModelId } from "../providers/index.js";
 import { imageKeyFor, uploadImage } from "../storage/r2.js";
-import { checkImage } from "./check.js";
+import { env } from "../env.js";
+import { errorMessage, isRetryable } from "../lib/errors.js";
+import { checkImage, saveCheck, saveUnavailable } from "./check.js";
 import { setStage, type ClaimedJob } from "./queue.js";
 
 const GENERATE_TIMEOUT_MS = 120_000;
@@ -53,32 +55,12 @@ export async function runPipeline(job: ClaimedJob) {
   }
 
   await setStage(job, "checking");
-  const check = await checkImage(gen.imageUrl!, gen.brandVersion, AbortSignal.timeout(CHECK_TIMEOUT_MS));
-
-  if (check.status === "ok") {
-    await prisma.generation.update({
-      where: { id: gen.id },
-      data: {
-        checkStatus: "ok",
-        score: check.score,
-        reasons: check.reasons,
-        paletteMatch: check.paletteMatch,
-        onBrand: check.score >= gen.brandVersion.threshold,
-        judgeModel: check.judgeModel,
-        judgePromptVersion: check.judgePromptVersion,
-      },
-    });
-  } else {
-    await prisma.generation.update({
-      where: { id: gen.id },
-      data: {
-        checkStatus: "check_unavailable",
-        score: null,
-        onBrand: null,
-        reasons: check.reason,
-        judgeModel: check.judgeModel,
-        judgePromptVersion: check.judgePromptVersion,
-      },
-    });
+  try {
+    const result = await checkImage(gen.imageUrl!, gen.brandVersion, AbortSignal.timeout(CHECK_TIMEOUT_MS));
+    await saveCheck(gen.id, gen.brandVersion.threshold, result);
+  } catch (e) {
+    // the image is fine, so a judge outage on the last attempt should not fail the whole generation
+    if (isRetryable(e) && job.attempts < job.maxAttempts) throw e;
+    await saveUnavailable(gen.id, `judge error: ${errorMessage(e)}`, env.JUDGE_MODEL);
   }
 }

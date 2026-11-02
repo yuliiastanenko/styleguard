@@ -10,11 +10,21 @@ import { generations } from "./routes/generations.js";
 
 export const app = new Hono();
 
+// entries like https://*.lovable.app match any subdomain
+const patterns = env.CORS_ORIGINS.split(",")
+  .map((s) => s.trim())
+  .filter(Boolean)
+  .map((p) => new RegExp(`^${p.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[a-z0-9-]+")}$`, "i"));
+
+function allowedOrigin(origin: string) {
+  return patterns.some((re) => re.test(origin));
+}
+
 app.use("*", logger());
 app.use(
   "*",
   cors({
-    origin: env.CORS_ORIGINS.split(",").map((s) => s.trim()),
+    origin: (origin) => (allowedOrigin(origin) ? origin : null),
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Idempotency-Key"],
   }),

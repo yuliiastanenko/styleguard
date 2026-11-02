@@ -16,7 +16,9 @@
     "r2:test": "tsx --env-file=.env scripts/r2-test.ts",
     "postinstall": "prisma generate",
     "gen:test": "tsx --env-file=.env scripts/gen-test.ts",
-    "db:seed": "tsx --env-file=.env prisma/seed.ts"
+    "db:seed": "tsx --env-file=.env prisma/seed.ts",
+    "judge:test": "tsx --env-file=.env scripts/judge-test.ts",
+    "start:prod": "prisma migrate deploy && node dist/index.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1161.0",
@@ -26,6 +28,7 @@
     "@prisma/client": "^6.19.3",
     "hono": "^4.13.16",
     "openai": "^7.47.0",
+    "sharp": "^0.35.5",
     "zod": "^4.6.7"
   },
   "devDependencies": {

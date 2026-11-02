@@ -12,6 +12,12 @@
     "r2:test": "npm run r2:test -w @styleguard/api",
     "gen:test": "npm run gen:test -w @styleguard/api --",
     "db:seed": "npm run db:seed -w @styleguard/api",
-    "db:studio": "npm run db:studio -w @styleguard/api"
+    "db:studio": "npm run db:studio -w @styleguard/api",
+    "judge:test": "npm run judge:test -w @styleguard/api --",
+    "build": "npm run build -w @styleguard/api",
+    "start": "npm run start:prod -w @styleguard/api"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }
