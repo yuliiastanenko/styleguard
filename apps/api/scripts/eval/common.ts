@@ -44,12 +44,22 @@ export function writeJson(path: string, data: unknown) {
   writeFileSync(path, JSON.stringify(data, null, 2) + "\n");
 }
 
-// cloudflare answers 429 once the free daily neurons are gone
+// code 4006: the free daily neurons are gone, waiting will not help today
 export function isQuotaError(e: unknown): boolean {
+  const msg = e instanceof Error ? e.message : String(e);
+  return /\b4006\b|daily free allocation/i.test(msg);
+}
+
+// code 3040 and other 429/5xx are short overloads, worth waiting for
+export function isTransientError(e: unknown): boolean {
+  if (isQuotaError(e)) return false;
   const status = (e as { status?: unknown })?.status;
   const msg = e instanceof Error ? e.message : String(e);
-  return status === 429 || /\b429\b|\b4006\b|daily free allocation|neurons? (limit|allocation|quota)/i.test(msg);
+  if (typeof status === "number" && (status === 429 || status >= 500)) return true;
+  return /\b3040\b|capacity temporarily exceeded|\b429\b|\b5\d\d\b|timeout|timed out|ECONNRESET|fetch failed/i.test(msg);
 }
+
+export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export function arg(name: string, fallback?: string): string | undefined {
   const i = process.argv.indexOf(`--${name}`);

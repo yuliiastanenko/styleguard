@@ -6,7 +6,7 @@ import { buildPrompt } from "../../src/pipeline/prompt.js";
 import { getImageProvider, isModelAvailable, isModelId } from "../../src/providers/index.js";
 import { uploadImage } from "../../src/storage/r2.js";
 import { errorMessage } from "../../src/lib/errors.js";
-import { arg, isQuotaError, paths, readJson, writeJson, type DatasetItem, type Kind } from "./common.js";
+import { arg, isQuotaError, isTransientError, sleep, paths, readJson, writeJson, type DatasetItem, type Kind } from "./common.js";
 
 type Subjects = Record<
   string,
@@ -60,7 +60,16 @@ for (const p of todo) {
   const prompt = buildPrompt(p.subject, styleV);
 
   try {
-    const result = await provider.generate(prompt, { signal: AbortSignal.timeout(120_000) });
+    let result;
+    for (let tries = 1; ; tries++) {
+      try {
+        result = await provider.generate(prompt, { signal: AbortSignal.timeout(120_000) });
+        break;
+      } catch (e) {
+        if (!isTransientError(e) || tries >= 5) throw e;
+        await sleep(5_000 * 2 ** (tries - 1));
+      }
+    }
     const ext = result.mimeType === "image/jpeg" ? "jpg" : result.mimeType === "image/webp" ? "webp" : "png";
     const { url } = await uploadImage(`eval/${p.id}.${ext}`, result.imageBytes, result.mimeType);
 

@@ -3,14 +3,14 @@
 // npm run eval -- --repeats 1                     single pass, cheapest
 // npm run eval -- --min-agreement 0.7             exit 1 below that, used in ci
 import { createHash } from "node:crypto";
-import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { judgeImage } from "../../src/judge/judge.js";
 import { JUDGES, isJudgeId, type JudgeId } from "../../src/judge/judges.js";
 import { JUDGE_PROMPT_VERSION } from "../../src/judge/prompt.js";
 import { env } from "../../src/env.js";
 import { errorMessage } from "../../src/lib/errors.js";
-import { arg, isQuotaError, paths, readJson, writeJson, type DatasetItem, type GoldenItem } from "./common.js";
+import { arg, isQuotaError, isTransientError, sleep, paths, readJson, writeJson, type DatasetItem, type GoldenItem } from "./common.js";
 import { computeMetrics, renderSummary, type Metrics, type RunRecord } from "./metrics.js";
 
 const judgeIds = (arg("judge", env.JUDGE_MODEL) ?? "").split(",").map((s) => s.trim()).filter(Boolean);
@@ -100,9 +100,21 @@ for (const judge of judgeIds as JudgeId[]) {
   if (!quotaHit && tasks.length > 0) {
     let n = 0;
     quotaHit = await pool(tasks, concurrency, async ({ item, run }) => {
-      const started = Date.now();
+      let started = Date.now();
       try {
-        const r = await judgeImage(item.imageUrl, item, judge, AbortSignal.timeout(90_000));
+        let r;
+        for (let tries = 1; ; tries++) {
+          started = Date.now();
+          try {
+            r = await judgeImage(item.imageUrl, item, judge, AbortSignal.timeout(120_000));
+            break;
+          } catch (e) {
+            if (!isTransientError(e) || tries >= 5) throw e;
+            const wait = 5_000 * 2 ** (tries - 1);
+            console.log(`  ${item.id}: cloudflare busy, retry in ${wait / 1000}s`);
+            await sleep(wait);
+          }
+        }
         const rec: RunRecord =
           r.status === "ok"
             ? { id: item.id, run, status: "ok", score: r.verdict.score, paletteMatch: r.verdict.paletteMatch, reasons: r.verdict.reasons, ms: Date.now() - started }
@@ -127,6 +139,11 @@ for (const judge of judgeIds as JudgeId[]) {
   }
 
   const metrics = computeMetrics(name, judge, JUDGES[judge].model, JUDGE_PROMPT_VERSION, items, labels, readRuns(file), repeats, subset.size);
+  // an older hash for the same judge and prompt version is outdated code, keep only the current one
+  mkdirSync(paths.results, { recursive: true });
+  for (const f of readdirSync(paths.results)) {
+    if (f.startsWith(`${judge}__${JUDGE_PROMPT_VERSION}__`) && f !== `${name}.json`) rmSync(resolve(paths.results, f));
+  }
   writeJson(resolve(paths.results, `${name}.json`), metrics);
   results.push({ name, metrics });
 }

@@ -63,24 +63,61 @@ async function loadImage(imageUrl: string, signal?: AbortSignal): Promise<string
   return `data:image/jpeg;base64,${jpeg.toString("base64")}`;
 }
 
+// every balanced {...} block in the text, so json after a thinking section or with braces in prose is still found
+function jsonCandidates(text: string): string[] {
+  const out: string[] = [];
+  for (let start = text.indexOf("{"); start !== -1; start = text.indexOf("{", start + 1)) {
+    let depth = 0;
+    let inString = false;
+    for (let i = start; i < text.length; i++) {
+      const ch = text[i];
+      if (inString) {
+        if (ch === "\\") i++;
+        else if (ch === '"') inString = false;
+      } else if (ch === '"') inString = true;
+      else if (ch === "{") depth++;
+      else if (ch === "}" && --depth === 0) {
+        out.push(text.slice(start, i + 1));
+        break;
+      }
+    }
+  }
+  return out;
+}
+
+// thinking models put their reasoning before the answer
+function stripThinking(text: string): string {
+  const afterChannel = text.lastIndexOf("<channel|>");
+  if (afterChannel !== -1) text = text.slice(afterChannel + "<channel|>".length);
+  return text.replace(/<think>[\s\S]*?<\/think>/g, "");
+}
+
 export function parseVerdict(text: string): { ok: true; verdict: Verdict } | { ok: false; error: string } {
-  const start = text.indexOf("{");
-  const end = text.lastIndexOf("}");
-  if (start === -1 || end <= start) return { ok: false, error: "no json object in reply" };
+  const candidates = jsonCandidates(stripThinking(text));
+  if (candidates.length === 0) return { ok: false, error: "no json object in reply" };
 
-  let raw: unknown;
-  try {
-    raw = JSON.parse(text.slice(start, end + 1));
-  } catch {
-    return { ok: false, error: "reply is not valid json" };
-  }
-
-  const parsed = Verdict.safeParse(raw);
-  if (!parsed.success) {
+  let lastError = "reply is not valid json";
+  for (const c of candidates.reverse()) {
+    let raw: unknown;
+    try {
+      raw = JSON.parse(c);
+    } catch {
+      continue;
+    }
+    const parsed = Verdict.safeParse(raw);
+    if (parsed.success) return { ok: true, verdict: parsed.data };
     const issue = parsed.error.issues[0];
-    return { ok: false, error: `bad shape: ${issue.path.join(".") || "root"} ${issue.message}` };
+    lastError = `bad shape: ${issue.path.join(".") || "root"} ${issue.message}`;
   }
-  return { ok: true, verdict: parsed.data };
+  return { ok: false, error: lastError };
+}
+
+function replyText(content: unknown): string {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    return content.map((p) => (typeof p === "string" ? p : (p as { text?: string })?.text ?? "")).join("");
+  }
+  return "";
 }
 
 export async function judgeImage(
@@ -112,17 +149,19 @@ export async function judgeImage(
         model: cfg.model,
         messages,
         temperature: 0,
-        max_tokens: 400,
+        max_tokens: cfg.maxTokens,
         ...(cfg.jsonMode ? { response_format: { type: "json_object" as const } } : {}),
       },
       { signal },
     );
 
-    const text = res.choices[0]?.message?.content ?? "";
+    const choice = res.choices[0];
+    const text = replyText(choice?.message?.content);
     const parsed = parseVerdict(text);
     if (parsed.ok) return { status: "ok", verdict: parsed.verdict, attempts: attempt, ...base };
 
-    lastError = parsed.error;
+    const snippet = text.replace(/\s+/g, " ").slice(0, 160);
+    lastError = `${parsed.error} (finish: ${choice?.finish_reason ?? "?"}, reply: "${snippet}")`;
     messages.push({ role: "assistant", content: text || "(empty)" }, { role: "user", content: RETRY_NUDGE });
   }
 

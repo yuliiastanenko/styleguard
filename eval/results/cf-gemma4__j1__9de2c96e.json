@@ -1,0 +1,63 @@
+{
+  "name": "cf-gemma4__j1__9de2c96e",
+  "judge": "cf-gemma4",
+  "model": "@cf/google/gemma-4-26b-a4b-it",
+  "promptVersion": "j1",
+  "updatedAt": "2026-11-02T13:26:51.746Z",
+  "complete": true,
+  "scored": 42,
+  "expected": 82,
+  "unavailable": 0,
+  "agreement": 0.9285714285714286,
+  "precisionOff": 0.8421052631578947,
+  "recallOff": 1,
+  "f1Off": 0.9142857142857143,
+  "auc": 0.9879807692307693,
+  "meanScoreOn": 9.23076923076923,
+  "meanScoreOff": 1.875,
+  "confusion": {
+    "tp": 16,
+    "fp": 3,
+    "fn": 0,
+    "tn": 23
+  },
+  "repeatItems": 10,
+  "meanStd": 0.07483314773547882,
+  "maxRange": 2,
+  "verdictFlips": 0,
+  "avgMs": 14314.451219512195,
+  "byBrand": {
+    "neon": {
+      "n": 14,
+      "agreement": 1
+    },
+    "nordic": {
+      "n": 14,
+      "agreement": 0.8571428571428571
+    },
+    "terra": {
+      "n": 14,
+      "agreement": 0.9285714285714286
+    }
+  },
+  "disagreements": [
+    {
+      "id": "nordic-foreign-3",
+      "label": "on",
+      "score": 4,
+      "threshold": 7.5
+    },
+    {
+      "id": "terra-drift-1",
+      "label": "on",
+      "score": 4,
+      "threshold": 7
+    },
+    {
+      "id": "nordic-on-3",
+      "label": "on",
+      "score": 7,
+      "threshold": 7.5
+    }
+  ]
+}

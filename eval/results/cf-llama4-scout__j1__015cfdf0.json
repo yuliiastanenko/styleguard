@@ -1,0 +1,99 @@
+{
+  "name": "cf-llama4-scout__j1__015cfdf0",
+  "judge": "cf-llama4-scout",
+  "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "promptVersion": "j1",
+  "updatedAt": "2026-11-02T13:34:06.317Z",
+  "complete": true,
+  "scored": 42,
+  "expected": 82,
+  "unavailable": 0,
+  "agreement": 0.7857142857142857,
+  "precisionOff": 0.64,
+  "recallOff": 1,
+  "f1Off": 0.7804878048780487,
+  "auc": 0.9639423076923077,
+  "meanScoreOn": 6.6923076923076925,
+  "meanScoreOff": 2.125,
+  "confusion": {
+    "tp": 16,
+    "fp": 9,
+    "fn": 0,
+    "tn": 17
+  },
+  "repeatItems": 10,
+  "meanStd": 0,
+  "maxRange": 0,
+  "verdictFlips": 0,
+  "avgMs": 8170.536585365854,
+  "byBrand": {
+    "neon": {
+      "n": 14,
+      "agreement": 0.8571428571428571
+    },
+    "nordic": {
+      "n": 14,
+      "agreement": 0.5714285714285714
+    },
+    "terra": {
+      "n": 14,
+      "agreement": 0.9285714285714286
+    }
+  },
+  "disagreements": [
+    {
+      "id": "nordic-foreign-3",
+      "label": "on",
+      "score": 4,
+      "threshold": 7.5
+    },
+    {
+      "id": "nordic-on-3",
+      "label": "on",
+      "score": 4,
+      "threshold": 7.5
+    },
+    {
+      "id": "neon-drift-1",
+      "label": "on",
+      "score": 4,
+      "threshold": 7
+    },
+    {
+      "id": "neon-drift-4",
+      "label": "on",
+      "score": 4,
+      "threshold": 7
+    },
+    {
+      "id": "terra-drift-1",
+      "label": "on",
+      "score": 4,
+      "threshold": 7
+    },
+    {
+      "id": "nordic-on-1",
+      "label": "on",
+      "score": 7,
+      "threshold": 7.5
+    },
+    {
+      "id": "nordic-on-2",
+      "label": "on",
+      "score": 7,
+      "threshold": 7.5
+    },
+    {
+      "id": "nordic-on-5",
+      "label": "on",
+      "score": 7,
+      "threshold": 7.5
+    },
+    {
+      "id": "nordic-on-6",
+      "label": "on",
+      "score": 7,
+      "threshold": 7.5
+    }
+  ]
+}
