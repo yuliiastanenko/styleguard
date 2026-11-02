@@ -6,6 +6,7 @@ import { validate } from "../lib/validate.js";
 import { findBrand, latestVersion } from "../services/brands.js";
 import { DEFAULT_MODEL, MODEL_IDS, isModelAvailable } from "../providers/index.js";
 import { buildPrompt, PROMPT_TEMPLATE_VERSION } from "../pipeline/prompt.js";
+import { clientIp, dailyUsage, perIpGenerations } from "../lib/limits.js";
 
 export const generations = new Hono();
 
@@ -67,6 +68,18 @@ generations.post("/", validate("json", CreateGeneration), async (c) => {
   const version = await latestVersion(brand.id);
   if (!version) return c.json({ error: "brand_has_no_versions" }, 409);
 
+  // every generation costs provider calls, so a public demo needs a ceiling
+  const usage = await dailyUsage();
+  if (usage.remaining <= 0) {
+    c.header("Retry-After", String(Math.ceil((usage.resetsAt.getTime() - Date.now()) / 1000)));
+    return c.json({ error: "daily_limit_reached", message: `The demo is capped at ${usage.limit} images a day. It resets at ${usage.resetsAt.toISOString()}.`, ...usage }, 429);
+  }
+  const rate = perIpGenerations.take(clientIp(c));
+  if (!rate.ok) {
+    c.header("Retry-After", String(rate.retryAfterSec));
+    return c.json({ error: "rate_limited", message: `Too many images from your address, try again in ${rate.retryAfterSec} s.`, retryAfterSec: rate.retryAfterSec }, 429);
+  }
+
   try {
     const created = await prisma.generation.create({
       data: {
@@ -126,6 +139,8 @@ generations.get("/", validate("query", ListQuery), async (c) => {
   const items = rows.slice(0, q.limit);
   return c.json({ items: items.map(dto), nextCursor: hasMore ? items[items.length - 1].id : null });
 });
+
+generations.get("/limits", async (c) => c.json(await dailyUsage()));
 
 generations.get("/:id", async (c) => {
   const g = await prisma.generation.findUnique({ where: { id: c.req.param("id") }, include });

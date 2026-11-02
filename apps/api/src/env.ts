@@ -21,6 +21,9 @@ const EnvSchema = z.object({
 
   SLACK_WEBHOOK_URL: z.string().url().optional().or(z.literal("").transform(() => undefined)),
   PUBLIC_APP_URL: z.string().url().optional().or(z.literal("").transform(() => undefined)),
+  DAILY_GENERATION_LIMIT: z.coerce.number().int().min(0).default(50),
+  RATE_LIMIT_PER_IP: z.coerce.number().int().min(1).default(10),
+  RATE_LIMIT_WINDOW_MIN: z.coerce.number().int().min(1).default(10),
   DRIFT_WINDOW: z.coerce.number().int().min(3).max(100).default(10),
   DRIFT_MIN_SAMPLES: z.coerce.number().int().min(2).max(100).default(5),
   DRIFT_RECOVERY_MARGIN: z.coerce.number().min(0).max(5).default(0.5),

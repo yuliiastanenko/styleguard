@@ -131,3 +131,9 @@ Every finished check updates a rolling mean of judge scores per brand + model (l
 ```
 
 Points are oldest first. `POST /drift/recompute` recalculates every brand + model pair, useful after changing a threshold.
+
+## Limits
+
+The public demo caps spending. `POST /generations` returns `429` with `{ error: "daily_limit_reached", message, limit, used, remaining, resetsAt }` once `DAILY_GENERATION_LIMIT` images (default 50) were created since 00:00 UTC, and `429` with `{ error: "rate_limited", message, retryAfterSec }` after `RATE_LIMIT_PER_IP` images (default 10) from one address within `RATE_LIMIT_WINDOW_MIN` minutes (default 10). Both set a `Retry-After` header. Replays with an existing `Idempotency-Key` are not counted.
+
+`GET /generations/limits` → `{ limit, used, remaining, resetsAt }`

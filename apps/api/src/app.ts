@@ -28,6 +28,7 @@ app.use(
     origin: (origin) => (allowedOrigin(origin) ? origin : null),
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Idempotency-Key"],
+    exposeHeaders: ["Retry-After"],
   }),
 );
 
