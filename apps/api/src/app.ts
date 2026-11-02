@@ -5,6 +5,7 @@ import { HTTPException } from "hono/http-exception";
 import { env } from "./env.js";
 import { health } from "./routes/health.js";
 import { models } from "./routes/models.js";
+import { brands } from "./routes/brands.js";
 
 export const app = new Hono();
 
@@ -21,6 +22,7 @@ app.use(
 app.get("/", (c) => c.json({ name: "styleguard-api" }));
 app.route("/health", health);
 app.route("/models", models);
+app.route("/brands", brands);
 
 app.notFound((c) => c.json({ error: "not_found" }, 404));
 
