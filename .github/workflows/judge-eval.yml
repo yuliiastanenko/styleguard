@@ -1,0 +1,70 @@
+name: judge eval
+
+on:
+  pull_request:
+    paths:
+      - "apps/api/src/judge/**"
+      - "apps/api/scripts/eval/**"
+      - "eval/dataset.json"
+      - "eval/golden.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: judge-eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # the eval never touches the database, so prisma generate is skipped
+      - run: npm ci --ignore-scripts
+
+      - name: env
+        run: |
+          cat > apps/api/.env <<EOF
+          DATABASE_URL=postgresql://unused@localhost/unused
+          R2_ACCOUNT_ID=${{ secrets.CF_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID=unused
+          R2_SECRET_ACCESS_KEY=unused
+          R2_BUCKET=unused
+          R2_PUBLIC_URL=https://unused.r2.dev
+          CF_AI_TOKEN=${{ secrets.CF_AI_TOKEN }}
+          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+          JUDGE_MODEL=${{ vars.JUDGE_MODEL || 'cf-llama4-scout' }}
+          EOF
+
+      # cached runs for an unchanged judge are reused, so only a changed prompt or model costs calls
+      - name: run eval
+        run: npm run eval -- --repeats 3 --repeat-subset 6 --min-agreement ${{ vars.EVAL_MIN_AGREEMENT || '0' }}
+
+      - name: report
+        if: always() && hashFiles('eval/results/summary.md') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat eval/results/summary.md >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            gh pr comment ${{ github.event.pull_request.number }} --body-file eval/results/summary.md --edit-last \
+              || gh pr comment ${{ github.event.pull_request.number }} --body-file eval/results/summary.md
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-results
+          path: |
+            eval/results
+            eval/runs

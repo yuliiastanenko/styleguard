@@ -15,7 +15,10 @@
     "db:studio": "npm run db:studio -w @styleguard/api",
     "judge:test": "npm run judge:test -w @styleguard/api --",
     "build": "npm run build -w @styleguard/api",
-    "start": "npm run start:prod -w @styleguard/api"
+    "start": "npm run start:prod -w @styleguard/api",
+    "eval:build": "npm run eval:build -w @styleguard/api --",
+    "eval:label": "npm run eval:label -w @styleguard/api",
+    "eval": "npm run eval -w @styleguard/api --"
   },
   "engines": {
     "node": ">=22"

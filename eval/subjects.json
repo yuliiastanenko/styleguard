@@ -1,0 +1,68 @@
+{
+  "nordic": {
+    "on": [
+      "a ceramic teapot on a linen tablecloth",
+      "a wooden chair next to a bright window",
+      "a stack of folded wool blankets",
+      "a glass vase with a single eucalyptus branch",
+      "a minimal bedroom with a white bed",
+      "a cup of tea on a windowsill"
+    ],
+    "drift": [
+      "a crowded street market with colorful fruit stalls",
+      "a fireworks show over a city at night",
+      "a children's birthday party with lots of balloons",
+      "a busy restaurant kitchen with hanging pots and flames"
+    ],
+    "foreign": [
+      { "subject": "a ceramic teapot on a table", "style": "neon" },
+      { "subject": "a reading corner with an armchair", "style": "neon" },
+      { "subject": "a stack of folded blankets", "style": "terra" },
+      { "subject": "a bedroom with a bed and a lamp", "style": "terra" }
+    ]
+  },
+  "neon": {
+    "on": [
+      "a robot bartender serving drinks",
+      "a motorcycle on a wet street at night",
+      "a hacker typing on a glowing keyboard",
+      "a city skyline with flying cars",
+      "a DJ at a turntable in a club",
+      "an arcade machine in a dark room"
+    ],
+    "drift": [
+      "a sunny meadow with wildflowers at noon",
+      "a cozy farmhouse kitchen in the morning",
+      "a pastel bakery display of macarons",
+      "a calm beach at sunrise"
+    ],
+    "foreign": [
+      { "subject": "a robot standing in a room", "style": "nordic" },
+      { "subject": "a motorcycle parked on a street", "style": "nordic" },
+      { "subject": "a person at a computer desk", "style": "terra" },
+      { "subject": "a city street with shops", "style": "terra" }
+    ]
+  },
+  "terra": {
+    "on": [
+      "a loaf of sourdough bread on a linen cloth",
+      "a clay jug of olive oil with fresh herbs",
+      "roasted vegetables on a wooden board",
+      "hands kneading dough on a floured table",
+      "a bowl of figs with honey",
+      "a rustic pasta dish with basil"
+    ],
+    "drift": [
+      "a fast food tray with a burger and a plastic soda cup",
+      "blue ice cream in a supermarket freezer",
+      "a modern laboratory with glass test tubes",
+      "a sushi platter on a glossy black table"
+    ],
+    "foreign": [
+      { "subject": "a loaf of bread on a table", "style": "neon" },
+      { "subject": "a bowl of pasta", "style": "neon" },
+      { "subject": "a plate of vegetables", "style": "nordic" },
+      { "subject": "a jug of olive oil", "style": "nordic" }
+    ]
+  }
+}

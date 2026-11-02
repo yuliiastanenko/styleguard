@@ -1,0 +1,31 @@
+{
+  "name": "cf-gemma4__j1__45f7c46c",
+  "judge": "cf-gemma4",
+  "model": "@cf/google/gemma-4-26b-a4b-it",
+  "promptVersion": "j1",
+  "updatedAt": "2026-11-02T11:47:18.068Z",
+  "complete": false,
+  "scored": 0,
+  "expected": 82,
+  "unavailable": 0,
+  "agreement": null,
+  "precisionOff": null,
+  "recallOff": null,
+  "f1Off": null,
+  "auc": null,
+  "meanScoreOn": null,
+  "meanScoreOff": null,
+  "confusion": {
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "tn": 0
+  },
+  "repeatItems": 0,
+  "meanStd": null,
+  "maxRange": null,
+  "verdictFlips": 0,
+  "avgMs": null,
+  "byBrand": {},
+  "disagreements": []
+}

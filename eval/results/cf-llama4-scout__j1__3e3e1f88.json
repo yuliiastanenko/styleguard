@@ -1,0 +1,31 @@
+{
+  "name": "cf-llama4-scout__j1__3e3e1f88",
+  "judge": "cf-llama4-scout",
+  "model": "@cf/meta/llama-4-scout-17b-16e-instruct",
+  "promptVersion": "j1",
+  "updatedAt": "2026-11-02T11:44:56.961Z",
+  "complete": false,
+  "scored": 0,
+  "expected": 82,
+  "unavailable": 0,
+  "agreement": null,
+  "precisionOff": null,
+  "recallOff": null,
+  "f1Off": null,
+  "auc": null,
+  "meanScoreOn": null,
+  "meanScoreOff": null,
+  "confusion": {
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "tn": 0
+  },
+  "repeatItems": 0,
+  "meanStd": null,
+  "maxRange": null,
+  "verdictFlips": 0,
+  "avgMs": null,
+  "byBrand": {},
+  "disagreements": []
+}

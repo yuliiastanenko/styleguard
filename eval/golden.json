@@ -1,0 +1,170 @@
+[
+  {
+    "id": "neon-drift-1",
+    "label": "on"
+  },
+  {
+    "id": "neon-drift-2",
+    "label": "on"
+  },
+  {
+    "id": "neon-drift-3",
+    "label": "on"
+  },
+  {
+    "id": "neon-drift-4",
+    "label": "on"
+  },
+  {
+    "id": "neon-foreign-1",
+    "label": "off"
+  },
+  {
+    "id": "neon-foreign-2",
+    "label": "off"
+  },
+  {
+    "id": "neon-foreign-3",
+    "label": "off"
+  },
+  {
+    "id": "neon-foreign-4",
+    "label": "off"
+  },
+  {
+    "id": "neon-on-1",
+    "label": "on"
+  },
+  {
+    "id": "neon-on-2",
+    "label": "on"
+  },
+  {
+    "id": "neon-on-3",
+    "label": "on"
+  },
+  {
+    "id": "neon-on-4",
+    "label": "on"
+  },
+  {
+    "id": "neon-on-5",
+    "label": "on"
+  },
+  {
+    "id": "neon-on-6",
+    "label": "on"
+  },
+  {
+    "id": "nordic-drift-1",
+    "label": "off"
+  },
+  {
+    "id": "nordic-drift-2",
+    "label": "off"
+  },
+  {
+    "id": "nordic-drift-3",
+    "label": "off"
+  },
+  {
+    "id": "nordic-drift-4",
+    "label": "off"
+  },
+  {
+    "id": "nordic-foreign-1",
+    "label": "off"
+  },
+  {
+    "id": "nordic-foreign-2",
+    "label": "off"
+  },
+  {
+    "id": "nordic-foreign-3",
+    "label": "on"
+  },
+  {
+    "id": "nordic-foreign-4",
+    "label": "off"
+  },
+  {
+    "id": "nordic-on-1",
+    "label": "on"
+  },
+  {
+    "id": "nordic-on-2",
+    "label": "on"
+  },
+  {
+    "id": "nordic-on-3",
+    "label": "on"
+  },
+  {
+    "id": "nordic-on-4",
+    "label": "on"
+  },
+  {
+    "id": "nordic-on-5",
+    "label": "on"
+  },
+  {
+    "id": "nordic-on-6",
+    "label": "on"
+  },
+  {
+    "id": "terra-drift-1",
+    "label": "on"
+  },
+  {
+    "id": "terra-drift-2",
+    "label": "off"
+  },
+  {
+    "id": "terra-drift-3",
+    "label": "on"
+  },
+  {
+    "id": "terra-drift-4",
+    "label": "on"
+  },
+  {
+    "id": "terra-foreign-1",
+    "label": "off"
+  },
+  {
+    "id": "terra-foreign-2",
+    "label": "off"
+  },
+  {
+    "id": "terra-foreign-3",
+    "label": "off"
+  },
+  {
+    "id": "terra-foreign-4",
+    "label": "off"
+  },
+  {
+    "id": "terra-on-1",
+    "label": "on"
+  },
+  {
+    "id": "terra-on-2",
+    "label": "on"
+  },
+  {
+    "id": "terra-on-3",
+    "label": "on"
+  },
+  {
+    "id": "terra-on-4",
+    "label": "on"
+  },
+  {
+    "id": "terra-on-5",
+    "label": "on"
+  },
+  {
+    "id": "terra-on-6",
+    "label": "on"
+  }
+]
