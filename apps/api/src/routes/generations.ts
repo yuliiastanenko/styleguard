@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
 import { validate } from "../lib/validate.js";
 import { findBrand, latestVersion } from "../services/brands.js";
-import { DEFAULT_MODEL, MODEL_IDS } from "../providers/index.js";
+import { DEFAULT_MODEL, MODEL_IDS, isModelAvailable } from "../providers/index.js";
 import { buildPrompt, PROMPT_TEMPLATE_VERSION } from "../pipeline/prompt.js";
 
 export const generations = new Hono();
@@ -59,6 +59,8 @@ generations.post("/", validate("json", CreateGeneration), async (c) => {
     const existing = await prisma.generation.findUnique({ where: { idempotencyKey }, include });
     if (existing) return c.json({ ...dto(existing), replayed: true }, 200);
   }
+
+  if (!isModelAvailable(body.model)) return c.json({ error: "model_unavailable", model: body.model }, 400);
 
   const brand = await findBrand(body.brand);
   if (!brand) return c.json({ error: "brand_not_found" }, 404);

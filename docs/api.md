@@ -17,7 +17,7 @@ Other errors return `{ "error": "<code>" }` with 404 / 409 / 500.
 
 ## Models
 
-`GET /models`
+`GET /models` (only models whose provider key is configured)
 
 ```json
 {
