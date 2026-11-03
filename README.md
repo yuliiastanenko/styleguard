@@ -2,18 +2,25 @@
 
 Generating one on-brand image is easy. Generating hundreds and noticing when they quietly stop looking like the brand is the hard part. StyleGuard is a small tool for that: it generates images from brand templates, has a vision model check every result against the brand rules, keeps versions of everything, and tells you in Slack when a brand starts drifting.
 
+- Video walkthrough (3 min): https://drive.google.com/file/d/1B8spUQTbxHIUA6xlgq5wSKP4RpIQhCd1/view?usp=sharing
 - Live demo: https://styleguardtest.lovable.app
 - API: https://styleguard-api.onrender.com (free instance, the first request after a while can take up to a minute)
 - Frontend code: https://github.com/yuliiastanenko/styleguardtest
+
+<img src="docs/screenshots/off-brand-result.png" alt="An off-brand result: a neon nightclub for the Nordic brand scored 1 out of 10, with the judge's reasons" width="640">
+
+*A neon nightclub for a calm Nordic brand. The judge scores it 1/10 and says why, the threshold decides it's off-brand.*
 
 ## What it does
 
 - **Brands with versions.** A brand is a style prompt, written rules, a palette and a pass threshold. Editing a brand never overwrites it, it creates a new version, and every image remembers which version it was made with.
 - **Generation through a queue.** `POST /generations` returns right away, a worker does the rest: generate, upload to R2, check, done. The UI polls and shows each step.
 - **A judge on every image.** A vision model scores the image 0 to 10 against the brand rules and explains why. Whether that counts as on-brand is decided in code from the brand's threshold, not by the model.
-- **Model comparison.** Same brand and subject through two models side by side, with score, latency and cost.
+- **Model comparison.** Same brand and subject through two models side by side, with score, latency and cost. In the example below FLUX.2 klein scored higher than FLUX.1 schnell (8 vs 7) but took 8.8 s instead of 1.6 s and cost twice as much, which is the kind of trade-off this page is for.
 - **Drift alerts.** A rolling average of scores per brand and model. When it falls below the threshold, one Slack message. When it recovers, another one.
 - **An eval for the judge itself**, with a hand-labelled set and a GitHub Action that reruns it whenever the judge changes.
+
+<img src="docs/screenshots/compare.png" alt="Compare page: the same subject for the Neon brand through FLUX.1 schnell and FLUX.2 klein side by side" width="640">
 
 ## Architecture
 
@@ -87,6 +94,15 @@ What I took from it:
 ## Drift
 
 After every successful check the worker takes the last 10 scores for that brand and model and compares the mean to the brand threshold. Below it, the pair switches to "drifting" and Slack gets one message. It switches back only once the mean is half a point above the threshold, so an average sitting right on the line doesn't send a message on every image. The status switch is a conditional update, so two workers finishing at the same moment can't both send the alert. The Drift page in the UI shows the rolling mean against the threshold for each brand and model.
+
+<img src="docs/screenshots/drift-chart.png" alt="Drift chart for Nordic: six images scored 1, then on-brand images pull the rolling mean back up towards the threshold" width="640">
+
+The chart above is Nordic after that test: six off-brand images at 1, then a run of on-brand ones pulling the rolling mean back up towards the dashed threshold. The single red dot among the green ones scored 7, just under Nordic's 7.5.
+
+This is what the alert looked like when I pushed Nordic into drift on purpose: five off-brand images in a row, the judge gave each of them 1, and the message went out after the fifth, the minimum sample size. The sixth one didn't send another message because the status was already "drifting".
+
+<img src="docs/screenshots/slack-alert.png" alt="Slack drift alert for Nordic Co" width="560">
+
 
 `npm run drift:demo -- --api <url> --brand nordic` pushes a brand into drift on purpose with six off-brand subjects, handy for checking the Slack setup.
 
